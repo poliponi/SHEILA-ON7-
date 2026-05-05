@@ -134,7 +134,6 @@ pointer-events:none;
 opacity:1;
 pointer-events:auto;
 }
-
 </style>
 </head>
 
@@ -146,7 +145,7 @@ pointer-events:auto;
 <div class="box">
 
 <div class="logo">POLIPONI</div>
-<div class="sub">TIKET REGULER DIBUKA</div>
+<div class="sub">LIVE TICKET QUEUE SYSTEM</div>
 
 <div class="metrics">
 <div>👥 Online<br><b id="online">1200</b></div>
@@ -197,43 +196,36 @@ let p=document.createElement('p');
 p.innerText="> "+text;
 feed.prepend(p);
 
-// batasi biar tidak berat
 while(feed.children.length>6){
  feed.removeChild(feed.lastChild);
 }
 }
 
-// TARGET ~2 MENIT (120 detik)
 const totalDuration = 120000;
-const intervalTime = 2000; // update tiap 2 detik
+const intervalTime = 2000;
 const steps = totalDuration / intervalTime;
 const queueStep = queue / steps;
 
 setInterval(()=>{
 
-// TURUN HALUS (tidak lompat)
 if(queue>1){
  queue -= queueStep + Math.random()*0.5;
  if(queue<1) queue=1;
  percent += (100/steps);
 }
 
-// ONLINE lebih stabil (tidak liar)
 online += Math.floor(Math.random()*10)-5;
 if(online<800) online=800;
 
-// STOCK lebih jarang berubah
 if(Math.random()>0.85 && stock>0){
  stock--;
  addFeed("1 tiket berhasil dibeli");
 }
 
-// FEED tidak spam
 if(Math.random()>0.6){
  addFeed(messages[Math.floor(Math.random()*messages.length)]);
 }
 
-// UPDATE DOM SEKALI
 elQueue.innerText=Math.floor(queue);
 elOnline.innerText=online;
 elStock.innerText=stock;
@@ -241,7 +233,6 @@ elStock.innerText=stock;
 if(percent>100) percent=100;
 bar.style.width=percent+"%";
 
-// AKTIFKAN BUTTON
 if(queue<=3){
  btn.classList.add('active');
  addFeed("AKSES DIBUKA UNTUK ANDA");
@@ -249,11 +240,13 @@ if(queue<=3){
 
 },intervalTime);
 
+/* 🔥 FIX REDIRECT DI SINI */
 function enter(){
  document.body.style.transition="opacity 0.5s";
  document.body.style.opacity=0;
+
  setTimeout(()=>{
-   window.location.href="#";
+   window.location.href="https://poliponi.github.io/LOADING/";
  },500);
 }
 </script>
