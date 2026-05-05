@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>POLIPONI 2026 | LIVE QUEUE SYSTEM</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+color:#fff;
+overflow:hidden;
+}
+
+/* BACKGROUND */
+.bg-img{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+object-fit:cover;
+z-index:-2;
+}
+
+/* OVERLAY */
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+z-index:-1;
+}
+
+/* BOX */
+.box{
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+width:95%;max-width:600px;
+background:rgba(0,0,0,0.75);
+border:2px solid #00ffd5;
+box-shadow:0 0 40px rgba(0,255,200,0.3);
+padding:25px;
+border-radius:12px;
+backdrop-filter:blur(8px);
+}
+
+/* LOGO */
+.logo{
+font-size:42px;
+font-weight:900;
+text-align:center;
+letter-spacing:3px;
+color:#00ffd5;
+text-shadow:0 0 10px #00ffd5;
+}
+
+.sub{
+text-align:center;
+margin-top:5px;
+font-size:13px;
+opacity:.7
+}
+
+/* METRICS */
+.metrics{
+display:flex;
+justify-content:space-between;
+margin-top:20px;
+font-size:14px;
+}
+.metrics div{
+background:rgba(0,0,0,0.6);
+padding:10px;
+border:1px solid #00ffd5;
+width:32%;
+text-align:center;
+}
+
+/* QUEUE */
+.queue{
+margin-top:25px;
+text-align:center;
+font-size:18px;
+}
+.queue span{
+font-size:50px;
+color:#00ffd5;
+display:block;
+}
+
+/* PROGRESS */
+.progress-wrap{
+margin-top:20px;
+height:18px;
+background:#000;
+border-radius:20px;
+overflow:hidden;
+}
+.progress{
+height:100%;width:0%;
+background:linear-gradient(90deg,#00ffd5,#00ff88);
+transition:width 1s linear;
+}
+
+/* FEED */
+.feed{
+margin-top:20px;
+height:120px;
+overflow:hidden;
+font-size:12px;
+background:rgba(0,0,0,0.6);
+padding:10px;
+border:1px solid #00ffd5;
+}
+.feed p{opacity:.8}
+
+/* BUTTON */
+.btn{
+margin-top:20px;
+width:100%;
+padding:14px;
+border:none;
+background:#00ffd5;
+color:#000;
+font-weight:900;
+cursor:pointer;
+opacity:.3;
+pointer-events:none;
+}
+.btn.active{
+opacity:1;
+pointer-events:auto;
+}
+
+</style>
+</head>
+
+<body>
+
+<img src="background.jpg" class="bg-img">
+<div class="overlay"></div>
+
+<div class="box">
+
+<div class="logo">POLIPONI</div>
+<div class="sub">LIVE TICKET QUEUE SYSTEM</div>
+
+<div class="metrics">
+<div>👥 Online<br><b id="online">1200</b></div>
+<div>⚡ TPS<br><b id="tps">32</b></div>
+<div>🎟️ Sisa<br><b id="stock">87</b></div>
+</div>
+
+<div class="queue">
+POSISI ANDA
+<span id="queue">120</span>
+</div>
+
+<div class="progress-wrap">
+<div class="progress" id="bar"></div>
+</div>
+
+<div class="feed" id="feed"></div>
+
+<button class="btn" id="btn" onclick="enter()">MASUK KE PEMBELIAN</button>
+
+</div>
+
+<script>
+let queue=120;
+let online=1200;
+let stock=87;
+let percent=0;
+
+const feed=document.getElementById('feed');
+const btn=document.getElementById('btn');
+
+const elQueue=document.getElementById('queue');
+const elOnline=document.getElementById('online');
+const elStock=document.getElementById('stock');
+const bar=document.getElementById('bar');
+
+const messages=[
+"User #A21 berhasil masuk",
+"User #F91 checkout tiket",
+"Slot terbuka untuk 1 orang",
+"Server stabil",
+"Validasi pembayaran sukses",
+"User #X12 gagal, slot dilepas"
+];
+
+function addFeed(text){
+let p=document.createElement('p');
+p.innerText="> "+text;
+feed.prepend(p);
+
+// batasi biar tidak berat
+while(feed.children.length>6){
+ feed.removeChild(feed.lastChild);
+}
+}
+
+// TARGET ~2 MENIT (120 detik)
+const totalDuration = 120000;
+const intervalTime = 2000; // update tiap 2 detik
+const steps = totalDuration / intervalTime;
+const queueStep = queue / steps;
+
+setInterval(()=>{
+
+// TURUN HALUS (tidak lompat)
+if(queue>1){
+ queue -= queueStep + Math.random()*0.5;
+ if(queue<1) queue=1;
+ percent += (100/steps);
+}
+
+// ONLINE lebih stabil (tidak liar)
+online += Math.floor(Math.random()*10)-5;
+if(online<800) online=800;
+
+// STOCK lebih jarang berubah
+if(Math.random()>0.85 && stock>0){
+ stock--;
+ addFeed("1 tiket berhasil dibeli");
+}
+
+// FEED tidak spam
+if(Math.random()>0.6){
+ addFeed(messages[Math.floor(Math.random()*messages.length)]);
+}
+
+// UPDATE DOM SEKALI
+elQueue.innerText=Math.floor(queue);
+elOnline.innerText=online;
+elStock.innerText=stock;
+
+if(percent>100) percent=100;
+bar.style.width=percent+"%";
+
+// AKTIFKAN BUTTON
+if(queue<=3){
+ btn.classList.add('active');
+ addFeed("AKSES DIBUKA UNTUK ANDA");
+}
+
+},intervalTime);
+
+function enter(){
+ document.body.style.transition="opacity 0.5s";
+ document.body.style.opacity=0;
+ setTimeout(()=>{
+   window.location.href="#";
+ },500);
+}
+</script>
+
+</body>
+</html>
